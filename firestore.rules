@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // GANTI dengan email Google admin (boleh lebih dari satu)
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['emailkamu@gmail.com'];
+    }
+
+    // Semua orang boleh melihat; hanya admin yang boleh mengubah.
+    match /{coll}/{id} {
+      allow read: if coll in ['sessions', 'players', 'matches', 'live'];
+      allow write: if isAdmin() && coll in ['sessions', 'players', 'matches', 'live'];
+    }
+  }
+}
